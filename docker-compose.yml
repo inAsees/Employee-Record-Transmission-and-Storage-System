@@ -1,0 +1,41 @@
+services:
+  mysql:
+    image: mysql:9.3.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: employee_record_system
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./server/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend_net
+
+  backend:
+    build: ./server/
+    image: backend
+    container_name: backend
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      DB_USER: user
+      DB_HOST: mysql
+      DB_PASSWORD: 1234
+      DB_PORT: 3306
+      DB_NAME: employee_record_system
+    ports:
+      - "8000:8000"
+    networks:
+      - backend_net
+
+volumes:
+  mysql_data:
+
+networks:
+  backend_net:
